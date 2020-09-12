@@ -1,24 +1,30 @@
-name: 'build-test'
+name: test
+
 on: # rebuild any PRs and main branch changes
   pull_request:
   push:
     branches:
       - main
-      - 'releases/*'
 
 jobs:
-  build: # make sure build/ci work properly
+  test: # make sure build/ci work properly
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - run: |
-          npm install
-      - run: |
-          npm run all
-  test: # make sure the action works on a clean machine without building
+      - run: npm install
+      - run: npm run build
+      - run: npm run format-check
+      - run: npm run lint
+      - run: npm run test
+
+  test_run: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - uses: ./
         with:
-          milliseconds: 1000
+          glob: src/**
+        env:
+          GITHUB_REPOSITORY: 'jsmith/changes-since-last-tag-test-repo'
+          GITHUB_REF: refs/tags/v0.2.0
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_GIT_ACCESS_TOKEN }}

@@ -1,103 +1,87 @@
 <p align="center">
-  <a href="https://github.com/actions/typescript-action/actions"><img alt="typescript-action status" src="https://github.com/actions/typescript-action/workflows/build-test/badge.svg"></a>
+  <a href="https://github.com/jsmith/changes-since-last-tag/actions"><img alt="typescript-action status" src="https://github.com/jsmith/changes-since-last-tag/workflows/test/badge.svg"></a>
 </p>
 
-# Create a JavaScript Action using TypeScript
+# changes-since-last-tag
 
-Use this template to bootstrap the creation of a TypeScript action.:rocket:
+Do you do deployments when you push a new tag? Do you ever have multiple deployments in single repository? Do some of those deployments take a long time? Could some of these deployments be sometimes skipped if certain files haven't changed? If you answered yes to all of these questions, this action might be for you.
 
-This template includes compilation support, tests, a validation workflow, publishing, and versioning guidance.  
+## Inputs
 
-If you are new, there's also a simpler introduction.  See the [Hello World JavaScript Action](https://github.com/actions/hello-world-javascript-action)
+#### glob
 
-## Create an action from this template
+**description**: The glob of the files to check for changes (uses [`minimatch`](https://github.com/isaacs/minimatch)). All file changes that don't match this glob are filtered out. Defaults to "\*\*".
+**required**: false  
+**example**: `src/**`  
+**example**: `**`  
+**example**: `*.js`
 
-Click the `Use this Template` and provide the new repo details for your action
+## Outputs
 
-## Code in Main
+Ensure to set the step ID using the `id` attribute. See the [docs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsid).
 
-Install the dependencies  
-```bash
-$ npm install
-```
+#### steps.<STED_ID>.outputs.added
 
-Build the typescript and package it for distribution
-```bash
-$ npm run build && npm run package
-```
+**description**: The names of the newly created files (comma separated).  
+**example**: `a.txt, src/b.txt`
 
-Run the tests :heavy_check_mark:  
-```bash
-$ npm test
+#### steps.<STED_ID>.outputs.modified
 
- PASS  ./index.test.js
-  ✓ throws invalid number (3ms)
-  ✓ wait 500 ms (504ms)
-  ✓ test runs (95ms)
+**description**: The names of the updated files (comma separated).  
+**example**: `a.txt, src/b.txt`
 
-...
-```
+#### steps.<STED_ID>.outputs.removed
 
-## Change action.yml
+**description**: The names of the removed files (comma separated).  
+**example**: `a.txt, src/b.txt`
 
-The action.yml contains defines the inputs and output for your action.
+#### steps.<STED_ID>.outputs.removed
 
-Update the action.yml with your name, description, inputs and outputs for your action.
+**description**: The names of the renamed files (comma separated).  
+**example**: `a.txt, src/b.txt`
 
-See the [documentation](https://help.github.com/en/articles/metadata-syntax-for-github-actions)
+#### steps.<STED_ID>.outputs.any_changed
 
-## Change the Code
+**description**: Whether there were any files changes. This will always be `false` when this action runs on the first tag (as there is nothing to compare this tag to).  
+**example**: `true`
 
-Most toolkit and CI/CD operations involve async operations so the action is run in an async function.
+#### steps.<STED_ID>.outputs.first_tag
 
-```javascript
-import * as core from '@actions/core';
-...
+**description**: Whether this is the first tag.  
+**example**: `false`
 
-async function run() {
-  try { 
-      ...
-  } 
-  catch (error) {
-    core.setFailed(error.message);
-  }
-}
+## Example Usage
 
-run()
-```
-
-See the [toolkit documentation](https://github.com/actions/toolkit/blob/master/README.md#packages) for the various packages.
-
-## Publish to a distribution branch
-
-Actions are run from GitHub repos so we will checkin the packed dist folder. 
-
-Then run [ncc](https://github.com/zeit/ncc) and push the results:
-```bash
-$ npm run package
-$ git add dist
-$ git commit -a -m "prod dependencies"
-$ git push origin releases/v1
-```
-
-Note: We recommend using the `--license` option for ncc, which will create a license file for all of the production node modules used in your project.
-
-Your action is now published! :rocket: 
-
-See the [versioning documentation](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md)
-
-## Validate
-
-You can now validate the action by referencing `./` in a workflow in your repo (see [test.yml](.github/workflows/test.yml))
+You have repository that contains both the Android files (`android/`) and iOS files (`ios/`). Your GitHub action(s) contain two builds, one for iOS and one for Android. Sometimes, you only need to update your iOS application or vice versa. If one of these situations occur, you want to make sure only the builds that need to run actually do run.
 
 ```yaml
-uses: ./
-with:
-  milliseconds: 1000
+# This is required. This *must* only be run when a tag is pushed.
+on:
+  push:
+    tags:
+      # This is a catch all pattern but you can define your own pattern
+      - '*'
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - id: android_changes
+        with:
+          glob: android/**
+        uses: jsmith/changes-since-last-tag@v1
+
+      - id: ios_changes
+        with:
+          glob: ios/**
+        uses: jsmith/changes-since-last-tag@v1
+
+      # The == 'true' is important since we can only output strings
+      # If you forgot this, the build will always run... I think
+      - if: steps.android_changes.outputs.any_changes == 'true'
+        run: make android # just an example command
+
+      # Same as above except for ios
+      - if: steps.ios_changes.outputs.any_changes == 'true'
+        run: make ios
 ```
-
-See the [actions tab](https://github.com/actions/typescript-action/actions) for runs of this action! :rocket:
-
-## Usage:
-
-After testing you can [create a v1 tag](https://github.com/actions/toolkit/blob/master/docs/action-versioning.md) to reference the stable and latest V1 action

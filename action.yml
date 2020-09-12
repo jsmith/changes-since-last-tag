@@ -1,11 +1,15 @@
-name: 'Your name here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'File Changes Since Last Tag'
+description: 'List files that have changed since your last tag using globs.'
+author: 'Jacob Smith <jsmith@hey.com>'
 inputs:
-  milliseconds: # change this
-    required: true
-    description: 'input description here'
-    default: 'default value if applicable'
+  glob:
+    description: 'The glob of the files to check for changes (uses minimatch). All file changes that don\'t match this glob are filtered out. Defaults to "**".'
+    required: false
+
 runs:
   using: 'node12'
   main: 'dist/index.js'
+
+branding:
+  icon:  'file-text'
+  color: 'blue'
