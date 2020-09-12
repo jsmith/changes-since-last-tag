@@ -18,15 +18,3 @@ jobs:
       - run: npm run test
         env:
           GITHUB_TOKEN: ${{ secrets.PERSONAL_GIT_ACCESS_TOKEN }}
-
-  test_run: # make sure the action works on a clean machine without building
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - uses: ./
-        with:
-          glob: src/**
-        env:
-          GITHUB_REPOSITORY: 'jsmith/changes-since-last-tag-test-repo'
-          GITHUB_REF: refs/tags/v0.2.0
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_GIT_ACCESS_TOKEN }}
