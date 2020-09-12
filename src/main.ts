@@ -28,7 +28,7 @@ export function initClient<T extends {githubToken: string}>(
 
 interface Inputs {
   githubToken: string
-  glob: string
+  glob: string[]
   tag: string
   repo: string
   owner: string
@@ -56,7 +56,7 @@ function getInputs(): Result<Inputs, RuntimeError> {
     tag = match[1]
   }
 
-  const glob = core.getInput('glob') || '**'
+  const glob = (core.getInput('glob') || '**').split(',')
   core.info(`Looking for changes in "${glob}"`)
 
   const repo = core.getInput('repo') || context.repo.repo
@@ -245,7 +245,8 @@ async function run(): Promise<void> {
     .andThen(getChangedFiles)
     .map(o => {
       o.changedFiles = o.changedFiles.filter(file => {
-        if (!minimatch(file.filename, o.glob)) return false
+        // If every glob doesn't match, filter out the file
+        if (o.glob.every(glob => !minimatch(file.filename, glob))) return false
         core.debug(`Matched "${file.filename}"`)
         return true
       })

@@ -10,11 +10,11 @@ Do you do deployments when you push a new tag? Do you ever have multiple deploym
 
 ### glob
 
-**description**: The glob of the files to check for changes (uses [`minimatch`](https://github.com/isaacs/minimatch)). All file changes that don't match this glob are filtered out. Defaults to "\*\*".  
+**description**: The glob(s) of the files to check for changes (uses [`minimatch`](https://github.com/isaacs/minimatch)). All file changes that don't match at least one of the globs are filtered out. If you want to provide multiple globs, use a `,` between each glob. Defaults to `**`.
 **required**: false  
 **example**: `src/**`  
 **example**: `**`  
-**example**: `*.js`
+**example**: `*.js,*.py`
 
 ## Outputs
 

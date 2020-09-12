@@ -62,11 +62,11 @@ const runAndExpect = (
 test('test runs', () => {
   runAndExpect('v0.1.0', {}, true)
   runAndExpect('v0.2.0', {added: ['src/b.txt']}, false)
-  runAndExpect('v0.2.0', {added: ['src/b.txt']}, false, 'src/**')
+  runAndExpect('v0.2.0', {added: ['src/b.txt']}, false, 'other/**,src/**')
   runAndExpect('v0.3.0', {modified: ['a.txt']}, false)
   runAndExpect('v0.3.0', {}, false, 'src/**')
   runAndExpect('v0.4.0', {removed: ['src/b.txt']}, false)
   runAndExpect('v0.4.0', {removed: ['src/b.txt']}, false, '**/*.txt')
-  runAndExpect('v0.4.0', {}, false, '*.py')
+  runAndExpect('v0.4.0', {}, false, '*.py,*.js')
   runAndExpect('v0.5.0', {renamed: ['b.txt']}, false)
 })
