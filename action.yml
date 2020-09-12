@@ -1,9 +1,9 @@
-name: 'File Changes Since Last Tag'
-description: 'List files that have changed since your last tag using globs.'
-author: 'Jacob Smith <jsmith@hey.com>'
+name: File Changes Since Last Tag
+description: List files that have changed since your last tag using globs.
+author: Jacob Smith <jsmith@hey.com>
 inputs:
   glob:
-    description: 'The glob of the files to check for changes (uses minimatch). All file changes that don\'t match this glob are filtered out. Defaults to "**".'
+    description: The glob of the files to check for changes (uses minimatch). All file changes that don't match this glob are filtered out. Defaults to "**".
     required: false
 
 runs:
@@ -11,5 +11,5 @@ runs:
   main: 'dist/index.js'
 
 branding:
-  icon:  'file-text'
+  icon: 'file-text'
   color: 'blue'

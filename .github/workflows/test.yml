@@ -16,6 +16,8 @@ jobs:
       - run: npm run format-check
       - run: npm run lint
       - run: npm run test
+        env:
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_GIT_ACCESS_TOKEN }}
 
   test_run: # make sure the action works on a clean machine without building
     runs-on: ubuntu-latest

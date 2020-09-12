@@ -28,7 +28,17 @@ const runAndExpect = (
     }
   }
 
-  const output = cp.execSync(`node ${ip}`, options).toString()
+  let output
+  try {
+    output = cp.execSync(`node ${ip}`, options).toString()
+  } catch (e) {
+    // Ensure that the output is actually printed
+    // eslint-disable-next-line no-console
+    console.error(e.stdout.toString())
+    // eslint-disable-next-line no-console
+    console.error(e.stderr.toString())
+    throw e
+  }
   const expected = Object.entries(changed).map(
     ([key, files]) => `::set-output name=${key}::${(files ?? []).join(', ')}`
   )
