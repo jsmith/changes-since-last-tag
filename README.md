@@ -8,9 +8,9 @@ Do you do deployments when you push a new tag? Do you ever have multiple deploym
 
 ## Inputs
 
-#### glob
+### glob
 
-**description**: The glob of the files to check for changes (uses [`minimatch`](https://github.com/isaacs/minimatch)). All file changes that don't match this glob are filtered out. Defaults to "\*\*".
+**description**: The glob of the files to check for changes (uses [`minimatch`](https://github.com/isaacs/minimatch)). All file changes that don't match this glob are filtered out. Defaults to "\*\*".  
 **required**: false  
 **example**: `src/**`  
 **example**: `**`  
@@ -20,32 +20,32 @@ Do you do deployments when you push a new tag? Do you ever have multiple deploym
 
 Ensure to set the step ID using the `id` attribute. See the [docs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsid).
 
-#### steps.<STED_ID>.outputs.added
+### steps.<STED_ID>.outputs.added
 
 **description**: The names of the newly created files (comma separated).  
 **example**: `a.txt, src/b.txt`
 
-#### steps.<STED_ID>.outputs.modified
+### steps.<STED_ID>.outputs.modified
 
 **description**: The names of the updated files (comma separated).  
 **example**: `a.txt, src/b.txt`
 
-#### steps.<STED_ID>.outputs.removed
+### steps.<STED_ID>.outputs.removed
 
 **description**: The names of the removed files (comma separated).  
 **example**: `a.txt, src/b.txt`
 
-#### steps.<STED_ID>.outputs.removed
+### steps.<STED_ID>.outputs.removed
 
 **description**: The names of the renamed files (comma separated).  
 **example**: `a.txt, src/b.txt`
 
-#### steps.<STED_ID>.outputs.any_changed
+### steps.<STED_ID>.outputs.any_changed
 
 **description**: Whether there were any files changes. This will always be `false` when this action runs on the first tag (as there is nothing to compare this tag to).  
 **example**: `true`
 
-#### steps.<STED_ID>.outputs.first_tag
+### steps.<STED_ID>.outputs.first_tag
 
 **description**: Whether this is the first tag.  
 **example**: `false`
