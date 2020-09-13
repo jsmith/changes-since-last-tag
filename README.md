@@ -20,7 +20,7 @@ Do you do deployments when you push a new tag? Do you ever have multiple deploym
 
 Ensure to set the step ID using the `id` attribute. See the [docs](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions#jobsjob_idstepsid).
 
-### steps.<STED_ID>.outputs.added
+### steps.<STED_ID>.outputs.files
 
 **description**: The names of all of the added, modified, removed and renamed files (comma separated).  
 **example**: `a.txt, src/b.txt`
