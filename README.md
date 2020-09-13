@@ -89,6 +89,21 @@ jobs:
       # Same as above except for ios
       - if: steps.ios_changes.outputs.any_changes == 'true'
         run: make ios
+
+# This is an alternative method where this action just once
+# This method *could* lead to false positives but it is unlikely
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+      - id: changes
+        uses: jsmith/changes-since-last-tag@v1
+
+      - if: contains(steps.changes.outputs.files, 'android/')
+        run: make android # just an example command
+
+      - if: contains(steps.changes.outputs.files, 'ios/')
+        run: make ios
 ```
 
 ## Deployment
