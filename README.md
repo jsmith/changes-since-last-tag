@@ -40,7 +40,7 @@ Ensure to set the step ID using the `id` attribute. See the [docs](https://docs.
 **description**: The names of the removed files (comma separated).  
 **example**: `a.txt, src/b.txt`
 
-### steps.<STED_ID>.outputs.removed
+### steps.<STED_ID>.outputs.renamed
 
 **description**: The names of the renamed files (comma separated).  
 **example**: `a.txt, src/b.txt`
