@@ -16,13 +16,15 @@ const runAndExpect = (
     modified?: string[]
   },
   firstTag: boolean,
-  glob?: string
+  glob?: string,
+  repository?: string
 ): void => {
   const ip = path.join(__dirname, '..', 'lib', 'main.js')
   const options: cp.ExecSyncOptions = {
     env: {
       ...process.env,
-      GITHUB_REPOSITORY: 'jsmith/changes-since-last-tag-test-repo',
+      GITHUB_REPOSITORY:
+        repository ?? 'jsmith/changes-since-last-tag-test-repo',
       GITHUB_REF: `refs/tags/${tag}`,
       INPUT_GLOB: glob
     }
@@ -74,3 +76,13 @@ test('test runs', () => {
   runAndExpect('v0.4.0', {}, false, '*.py,*.js')
   runAndExpect('v0.5.0', {renamed: ['b.txt']}, false)
 })
+
+// test('big repository', () => {
+//   runAndExpect(
+//     'v0.5.0',
+//     {},
+//     false,
+//     'packages/app/**,packages/functions/**,packages/firestore.rules,packages/storage.rules,packages/storage.json,packages/indexes.json',
+//     'jsmith/relar'
+//   )
+// })

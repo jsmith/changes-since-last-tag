@@ -138,7 +138,15 @@ function getPreviousTag<
       })
     }
 
+    // This could be undefined
     const previousTag = res[index + 1]
+
+    if (previousTag) {
+      core.debug(`Comparing ${previousTag}...${o.tag}`)
+    } else {
+      core.debug(`${o.tag} is the first tag`)
+    }
+
     return ok({
       ...o,
       currentTag: o.tag,
@@ -175,6 +183,7 @@ function getChangedFiles<
       type: 'error'
     })
   ).map(res => {
+    core.debug(`Found ${res.length} changed files`)
     return {
       ...o,
       changedFiles: res
@@ -199,14 +208,6 @@ const isFileType = (status: string): status is FileType =>
 export function sortChangedFiles<T extends {changedFiles: GitHubFile[]}>(
   o: T
 ): Result<T & {sorted: SortedFiles}, RuntimeError> {
-  core.debug(
-    `Here are the files I am changing: ${JSON.stringify(
-      o.changedFiles,
-      null,
-      2
-    )}`
-  )
-
   const sorted: SortedFiles = {
     added: [],
     removed: [],
@@ -230,26 +231,27 @@ export function sortChangedFiles<T extends {changedFiles: GitHubFile[]}>(
   })
 }
 
-export function writeOutput(key: string, files: string[]): void {
-  const fileName = key === 'files' ? key : `files_${key}`
-  core.debug(
-    `Writing output ${fileName} with files ${JSON.stringify(files, null, 2)}`
-  )
-  core.setOutput(fileName, files.join(', '))
-}
-
 async function run(): Promise<void> {
   const result = await getInputs()
     .andThen(initClient)
     .asyncAndThen(getPreviousTag)
     .andThen(getChangedFiles)
     .map(o => {
+      const previousLength = o.changedFiles.length
       o.changedFiles = o.changedFiles.filter(file => {
         // If there isn't at least one match, filter out the file
         if (!o.glob.some(glob => minimatch(file.filename, glob))) return false
         core.debug(`Matched "${file.filename}"`)
         return true
       })
+
+      core.debug(
+        `Filtered out ${
+          previousLength - o.changedFiles.length
+        } file(s) using given blob`
+      )
+
+      core.debug(`There are ${o.changedFiles.length} files remaining`)
 
       return o
     })
@@ -259,7 +261,6 @@ async function run(): Promise<void> {
       const allFiles: string[] = []
       for (const status of filesTypes) {
         anyChanged = anyChanged || sorted[status].length !== 0
-        core.debug(`Writing output ${status} with files ${sorted[status]}`)
         core.setOutput(status, sorted[status].join(', '))
         allFiles.push(...sorted[status])
       }
@@ -273,7 +274,7 @@ async function run(): Promise<void> {
   if (result.isErr()) {
     let error: string | undefined
     try {
-      error = JSON.stringify(result.error)
+      error = JSON.stringify(result.error.error)
     } catch (e) {
       core.error(`Unable to stringify error object: ${result.error}`)
     }
