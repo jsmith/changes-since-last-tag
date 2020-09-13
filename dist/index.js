@@ -1419,7 +1419,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeOutput = exports.sortChangedFiles = exports.initClient = void 0;
+exports.sortChangedFiles = exports.initClient = void 0;
 const core = __importStar(__webpack_require__(186));
 const github_1 = __webpack_require__(438);
 const neverthrow_1 = __webpack_require__(591);
@@ -1455,7 +1455,7 @@ function getInputs() {
         }
         tag = match[1];
     }
-    const glob = core.getInput('glob') || '**';
+    const glob = (core.getInput('glob') || '**').split(',');
     core.info(`Looking for changes in "${glob}"`);
     const repo = core.getInput('repo') || github_1.context.repo.repo;
     const owner = core.getInput('owner') || github_1.context.repo.owner;
@@ -1467,7 +1467,6 @@ function getInputs() {
         owner
     });
 }
-// TODO document what tags look like
 function getPreviousTag(o) {
     return neverthrow_1.ResultAsync.fromPromise(o.client.paginate(o.client.repos.listTags, {
         repo: o.repo,
@@ -1517,39 +1516,39 @@ function getPreviousTag(o) {
                 message: `Unable to find "${o.tag}" in "${res.map(({ name }) => name)}"`
             });
         }
+        // This could be undefined
         const previousTag = res[index + 1];
+        if (previousTag) {
+            core.debug(`Comparing ${previousTag}...${o.tag}`);
+        }
+        else {
+            core.debug(`${o.tag} is the first tag`);
+        }
         return neverthrow_1.ok(Object.assign(Object.assign({}, o), { currentTag: o.tag, previousTag: previousTag === null || previousTag === void 0 ? void 0 : previousTag.name }));
     });
 }
 function getChangedFiles(o) {
     if (o.previousTag === undefined)
         return neverthrow_1.okAsync(Object.assign(Object.assign({}, o), { changedFiles: [] }));
-    return neverthrow_1.ResultAsync.fromPromise(
-    // o.client.paginate<GitHubFile[], GitHubFile[]>(o.client.repos.compareCommits.endpoint.merge({
-    //   owner: o.owner,
-    //   repo: o.repo,
-    //   base: o.previousTag,
-    //   head: o.currentTag
-    // }, (res) => res.data.files),
-    o.client.paginate(o.client.repos.compareCommits.endpoint.merge({
+    return neverthrow_1.ResultAsync.fromPromise(o.client.paginate(o.client.repos.compareCommits.endpoint.merge({
         owner: o.owner,
         repo: o.repo,
         base: o.previousTag,
         head: o.currentTag
-    }), response => response.data.files), error => ({
+    }), 
+    // This is a bit hacky but it's work
+    response => response.data.files), error => ({
         error,
         message: `There was an error comparing ${o.previousTag}...${o.currentTag} for ${o.owner}/${o.repo}`,
         type: 'error'
     })).map(res => {
-        // console.log('TESTER', JSON.stringify(res, null, 2))
-        // console.log('TEST\n' + JSON.stringify(res.files, null, 2))
+        core.debug(`Found ${res.length} changed files`);
         return Object.assign(Object.assign({}, o), { changedFiles: res });
     });
 }
 const filesTypes = ['added', 'removed', 'renamed', 'modified'];
 const isFileType = (status) => filesTypes.includes(status);
 function sortChangedFiles(o) {
-    core.debug(`Here are the files I am changing: ${JSON.stringify(o.changedFiles, null, 2)}`);
     const sorted = {
         added: [],
         removed: [],
@@ -1568,12 +1567,6 @@ function sortChangedFiles(o) {
     return neverthrow_1.ok(Object.assign(Object.assign({}, o), { sorted }));
 }
 exports.sortChangedFiles = sortChangedFiles;
-function writeOutput(key, files) {
-    const fileName = key === 'files' ? key : `files_${key}`;
-    core.debug(`Writing output ${fileName} with files ${JSON.stringify(files, null, 2)}`);
-    core.setOutput(fileName, files.join(', '));
-}
-exports.writeOutput = writeOutput;
 function run() {
     return __awaiter(this, void 0, void 0, function* () {
         const result = yield getInputs()
@@ -1581,27 +1574,28 @@ function run() {
             .asyncAndThen(getPreviousTag)
             .andThen(getChangedFiles)
             .map(o => {
-            // console.log(
-            //   'TODO',
-            //   o.changedFiles.map(({filename}) => filename)
-            // )
+            const previousLength = o.changedFiles.length;
             o.changedFiles = o.changedFiles.filter(file => {
-                // console.log(file.filename, o.glob, minimatch(file.filename, o.glob))
-                if (!minimatch_1.default(file.filename, o.glob))
+                // If there isn't at least one match, filter out the file
+                if (!o.glob.some(glob => minimatch_1.default(file.filename, glob)))
                     return false;
                 core.debug(`Matched "${file.filename}"`);
                 return true;
             });
+            core.debug(`Filtered out ${previousLength - o.changedFiles.length} file(s) using given blob`);
+            core.debug(`There are ${o.changedFiles.length} files remaining`);
             return o;
         })
             .andThen(sortChangedFiles)
             .andThen(({ sorted, previousTag }) => {
             let anyChanged = false;
+            const allFiles = [];
             for (const status of filesTypes) {
                 anyChanged = anyChanged || sorted[status].length !== 0;
-                core.debug(`Writing output ${status} with files ${sorted[status]}`);
                 core.setOutput(status, sorted[status].join(', '));
+                allFiles.push(...sorted[status]);
             }
+            core.setOutput('files', allFiles.join(', '));
             core.setOutput('any_changed', anyChanged);
             core.setOutput('first_tag', previousTag === undefined);
             return neverthrow_1.ok({});
@@ -1609,13 +1603,11 @@ function run() {
         if (result.isErr()) {
             let error;
             try {
-                error = JSON.stringify(result.error);
+                error = JSON.stringify(result.error.error);
             }
             catch (e) {
                 core.error(`Unable to stringify error object: ${result.error}`);
             }
-            // eslint-disable-next-line no-console
-            console.error(result.error.message);
             if (error) {
                 core.setFailed(`${result.error.message} (${error})`);
             }

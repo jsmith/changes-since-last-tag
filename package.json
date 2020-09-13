@@ -1,6 +1,6 @@
 {
   "name": "changes-since-last-tag",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "private": true,
   "description": "Check if there have been any changes since the last release.",
   "main": "lib/main.js",
