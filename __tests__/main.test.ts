@@ -49,6 +49,10 @@ const runAndExpect = (
   expected.push(`::set-output name=any_changed::${anyChanged}`)
   expected.push(`::set-output name=first_tag::${firstTag}`)
 
+  const allFiles: string[] = []
+  for (const items of Object.values(changed)) allFiles.push(...(items ?? []))
+  expected.push(`::set-output name=files::${allFiles.join(', ')}`)
+
   for (const line of expected) {
     if (!output.match(new RegExp(escapeRegExp(line)))) {
       throw Error(

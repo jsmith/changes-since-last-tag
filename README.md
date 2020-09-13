@@ -22,6 +22,11 @@ Ensure to set the step ID using the `id` attribute. See the [docs](https://docs.
 
 ### steps.<STED_ID>.outputs.added
 
+**description**: The names of all of the added, modified, removed and renamed files (comma separated).  
+**example**: `a.txt, src/b.txt`
+
+### steps.<STED_ID>.outputs.added
+
 **description**: The names of the newly created files (comma separated).  
 **example**: `a.txt, src/b.txt`
 

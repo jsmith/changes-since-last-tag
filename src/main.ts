@@ -245,8 +245,8 @@ async function run(): Promise<void> {
     .andThen(getChangedFiles)
     .map(o => {
       o.changedFiles = o.changedFiles.filter(file => {
-        // If every glob doesn't match, filter out the file
-        if (o.glob.every(glob => !minimatch(file.filename, glob))) return false
+        // If there isn't at least one match, filter out the file
+        if (!o.glob.some(glob => minimatch(file.filename, glob))) return false
         core.debug(`Matched "${file.filename}"`)
         return true
       })
@@ -256,12 +256,15 @@ async function run(): Promise<void> {
     .andThen(sortChangedFiles)
     .andThen(({sorted, previousTag}) => {
       let anyChanged = false
+      const allFiles: string[] = []
       for (const status of filesTypes) {
         anyChanged = anyChanged || sorted[status].length !== 0
         core.debug(`Writing output ${status} with files ${sorted[status]}`)
         core.setOutput(status, sorted[status].join(', '))
+        allFiles.push(...sorted[status])
       }
 
+      core.setOutput('files', allFiles.join(', '))
       core.setOutput('any_changed', anyChanged)
       core.setOutput('first_tag', previousTag === undefined)
       return ok({})
