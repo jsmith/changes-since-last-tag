@@ -90,3 +90,12 @@ jobs:
       - if: steps.ios_changes.outputs.any_changes == 'true'
         run: make ios
 ```
+
+## Deployment
+
+These steps detail how to release a new version of `@jsmith/changes-since-last-tag`.
+
+1. Make and commit your changes.
+2. Run `npm version COMMAND` with the appropriate `COMMAND`.
+3. Push everything using `git push && git push --tags`.
+4. Publish a new release on `github.com`.
