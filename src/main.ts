@@ -142,9 +142,9 @@ function getPreviousTag<
     const previousTag = res[index + 1]
 
     if (previousTag) {
-      core.debug(`Comparing ${previousTag}...${o.tag}`)
+      core.info(`Comparing ${previousTag}...${o.tag}`)
     } else {
-      core.debug(`${o.tag} is the first tag`)
+      core.info(`${o.tag} is the first tag`)
     }
 
     return ok({
@@ -183,7 +183,7 @@ function getChangedFiles<
       type: 'error'
     })
   ).map(res => {
-    core.debug(`Found ${res.length} changed files`)
+    core.info(`Found ${res.length} changed files`)
     return {
       ...o,
       changedFiles: res
