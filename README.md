@@ -74,20 +74,20 @@ jobs:
       - id: android_changes
         with:
           glob: android/**
-        uses: jsmith/changes-since-last-tag@v1
+        uses: jsmith/changes-since-last-tag@v0.3.3
 
       - id: ios_changes
         with:
           glob: ios/**
-        uses: jsmith/changes-since-last-tag@v1
+        uses: jsmith/changes-since-last-tag@v0.3.3
 
       # The == 'true' is important since we can only output strings
       # If you forgot this, the build will always run... I think
-      - if: steps.android_changes.outputs.any_changes == 'true'
+      - if: steps.android_changes.outputs.any_changed == 'true'
         run: make android # just an example command
 
       # Same as above except for ios
-      - if: steps.ios_changes.outputs.any_changes == 'true'
+      - if: steps.ios_changes.outputs.any_changed == 'true'
         run: make ios
 
 # This is an alternative method where this action just once
