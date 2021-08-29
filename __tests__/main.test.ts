@@ -15,10 +15,14 @@ const runAndExpect = (
     renamed?: string[]
     modified?: string[]
   },
-  firstTag: boolean,
-  glob?: string,
-  repository?: string
+  {
+    firstTag,
+    glob,
+    repository
+  }: {firstTag?: boolean; glob?: string; repository?: string} = {},
+  env?: Record<string, string>
 ): void => {
+  firstTag = firstTag ?? false
   const ip = path.join(__dirname, '..', 'lib', 'main.js')
   const options: cp.ExecSyncOptions = {
     env: {
@@ -26,7 +30,8 @@ const runAndExpect = (
       GITHUB_REPOSITORY:
         repository ?? 'jsmith/changes-since-last-tag-test-repo',
       GITHUB_REF: `refs/tags/${tag}`,
-      INPUT_GLOB: glob
+      INPUT_GLOB: glob,
+      ...env
     }
   }
 
@@ -36,9 +41,9 @@ const runAndExpect = (
   } catch (e) {
     // Ensure that the output is actually printed
     // eslint-disable-next-line no-console
-    console.error(e.stdout.toString())
+    console.error((e as any).stdout.toString())
     // eslint-disable-next-line no-console
-    console.error(e.stderr.toString())
+    console.error((e as any).stderr.toString())
     throw e
   }
   const expected = Object.entries(changed).map(
@@ -58,7 +63,7 @@ const runAndExpect = (
   for (const line of expected) {
     if (!output.match(new RegExp(escapeRegExp(line)))) {
       throw Error(
-        `Expected "${expected}" in output using options. See output below.\n${output}`
+        `Expected "${line}" in output using options. See output below.\n${output}`
       )
     }
   }
@@ -66,15 +71,28 @@ const runAndExpect = (
 
 // shows how the runner will run a javascript action with env / stdout protocol
 test('test runs', () => {
-  runAndExpect('v0.1.0', {}, true)
-  runAndExpect('v0.2.0', {added: ['src/b.txt']}, false)
-  runAndExpect('v0.2.0', {added: ['src/b.txt']}, false, 'other/**,src/**')
-  runAndExpect('v0.3.0', {modified: ['a.txt']}, false)
-  runAndExpect('v0.3.0', {}, false, 'src/**')
-  runAndExpect('v0.4.0', {removed: ['src/b.txt']}, false)
-  runAndExpect('v0.4.0', {removed: ['src/b.txt']}, false, '**/*.txt')
-  runAndExpect('v0.4.0', {}, false, '*.py,*.js')
-  runAndExpect('v0.5.0', {renamed: ['b.txt']}, false)
+  runAndExpect('v0.1.0', {}, {firstTag: true})
+  runAndExpect('v0.2.0', {added: ['src/b.txt']})
+  runAndExpect('v0.2.0', {added: ['src/b.txt']}, {glob: 'other/**,src/**'})
+  runAndExpect('v0.3.0', {modified: ['a.txt']})
+  runAndExpect('v0.3.0', {}, {glob: 'src/**'})
+  runAndExpect('v0.4.0', {removed: ['src/b.txt']})
+  runAndExpect('v0.4.0', {removed: ['src/b.txt']}, {glob: '**/*.txt'})
+  runAndExpect('v0.4.0', {}, {glob: '*.py,*.js'})
+  runAndExpect('v0.5.0', {renamed: ['b.txt']})
+
+  // Assert that you can pass the dot option down to minimatch
+  // Also assert that it doesn't work without the option and that it
+  // does work with the option
+  runAndExpect('v0.6.0', {added: []}, {})
+  runAndExpect(
+    'v0.6.0',
+    {added: ['.hide/me.txt']},
+    {},
+    {
+      INPUT_DOT: 'true'
+    }
+  )
 })
 
 // test('big repository', () => {

@@ -27,25 +27,25 @@
   "author": "Jacob Smith <jsmith@hey.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.6",
+    "@actions/core": "^1.5.0",
     "@actions/github": "^4.0.0",
     "minimatch": "^3.0.4",
     "neverthrow": "^2.7.1"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.10",
-    "@types/node": "^14.10.0",
-    "@types/minimatch": "^3.0.3",
+    "@types/jest": "^26.0.24",
+    "@types/minimatch": "^3.0.5",
+    "@types/node": "^14.17.12",
     "@typescript-eslint/parser": "^3.10.1",
     "@vercel/ncc": "^0.23.0",
-    "eslint": "^7.8.1",
-    "eslint-plugin-github": "^4.1.1",
+    "eslint": "^7.32.0",
+    "eslint-plugin-github": "^4.2.0",
     "eslint-plugin-jest": "^23.20.0",
-    "jest": "^24.9.0",
-    "jest-circus": "^26.4.2",
-    "js-yaml": "^3.14.0",
+    "jest": "^27.1.0",
+    "jest-circus": "^26.6.3",
+    "js-yaml": "^3.14.1",
     "prettier": "2.1.1",
-    "ts-jest": "^24.3.0",
-    "typescript": "^4.0.2"
+    "ts-jest": "^27.0.5",
+    "typescript": "^4.4.2"
   }
 }

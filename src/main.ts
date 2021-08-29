@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import {context, getOctokit} from '@actions/github'
 import {err, ok, okAsync, Result, ResultAsync} from 'neverthrow'
-import minimatch from 'minimatch'
+import minimatch, {IOptions} from 'minimatch'
 
 type GitHub = ReturnType<typeof getOctokit>
 
@@ -26,12 +26,22 @@ export function initClient<T extends {githubToken: string}>(
   }
 }
 
+const getBooleanInputSafe = (name: string): boolean => {
+  // getBooleanInput throws if a value isn't specified
+  // I do want it to throw if a user gives an invalid value
+  // So, the first thing I do is check if they actually provided an input
+  // If there isn't an input string, I just return false
+  if (!core.getInput(name)) return false
+  return core.getBooleanInput(name)
+}
+
 interface Inputs {
   githubToken: string
   glob: string[]
   tag: string
   repo: string
   owner: string
+  options: Required<IOptions>
 }
 
 function getInputs(): Result<Inputs, RuntimeError> {
@@ -62,12 +72,38 @@ function getInputs(): Result<Inputs, RuntimeError> {
   const repo = core.getInput('repo') || context.repo.repo
   const owner = core.getInput('owner') || context.repo.owner
 
+  const dot = getBooleanInputSafe('dot')
+  const debug = getBooleanInputSafe('debug')
+  const nobrace = getBooleanInputSafe('nobrace')
+  const noglobstar = getBooleanInputSafe('noglobstar')
+  const noext = getBooleanInputSafe('noext')
+  const nocase = getBooleanInputSafe('nocase')
+  const nonull = getBooleanInputSafe('nonull')
+  const matchBase = getBooleanInputSafe('matchBase')
+  const nocomment = getBooleanInputSafe('nocomment')
+  const nonegate = getBooleanInputSafe('nonegate')
+  const flipNegate = getBooleanInputSafe('flipNegate')
+  core.info('NOCASE' + nocase)
+
   return ok({
     githubToken,
     glob,
     tag,
     repo,
-    owner
+    owner,
+    options: {
+      dot,
+      debug,
+      nobrace,
+      noglobstar,
+      noext,
+      nocase,
+      nonull,
+      matchBase,
+      nocomment,
+      nonegate,
+      flipNegate
+    }
   })
 }
 
@@ -107,26 +143,6 @@ function getPreviousTag<
     //     },
     //     node_id: 'MDM6UmVmMjk1MDAzNzAxOnJlZnMvdGFncy92MC4zLjA='
     //   },
-    //   {
-    //     name: 'v0.2.0',
-    //     zipball_url: 'https://api.github.com/repos/jsmith/changes-since-last-tag-test-repo/zipball/v0.2.0',
-    //     tarball_url: 'https://api.github.com/repos/jsmith/changes-since-last-tag-test-repo/tarball/v0.2.0',
-    //     commit: {
-    //       sha: 'c8d2b32611a6d53601be548ada9923e4333cd4e5',
-    //       url: 'https://api.github.com/repos/jsmith/changes-since-last-tag-test-repo/commits/c8d2b32611a6d53601be548ada9923e4333cd4e5'
-    //     },
-    //     node_id: 'MDM6UmVmMjk1MDAzNzAxOnJlZnMvdGFncy92MC4yLjA='
-    //   },
-    //   {
-    //     name: 'v0.1.0',
-    //     zipball_url: 'https://api.github.com/repos/jsmith/changes-since-last-tag-test-repo/zipball/v0.1.0',
-    //     tarball_url: 'https://api.github.com/repos/jsmith/changes-since-last-tag-test-repo/tarball/v0.1.0',
-    //     commit: {
-    //       sha: '150fceadcdabef00ae009745f0d892f983e096b0',
-    //       url: 'https://api.github.com/repos/jsmith/changes-since-last-tag-test-repo/commits/150fceadcdabef00ae009745f0d892f983e096b0'
-    //     },
-    //     node_id: 'MDM6UmVmMjk1MDAzNzAxOnJlZnMvdGFncy92MC4xLjA='
-    //   }
     // ]
 
     // Note reverse is in place
@@ -240,7 +256,10 @@ async function run(): Promise<void> {
       const previousLength = o.changedFiles.length
       o.changedFiles = o.changedFiles.filter(file => {
         // If there isn't at least one match, filter out the file
-        if (!o.glob.some(glob => minimatch(file.filename, glob))) return false
+        if (!o.glob.some(glob => minimatch(file.filename, glob, o.options))) {
+          return false
+        }
+
         core.debug(`Matched "${file.filename}"`)
         return true
       })

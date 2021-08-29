@@ -1,3 +1,12 @@
 {
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "nobrace",
+    "nocase",
+    "nocomment",
+    "noext",
+    "noglobstar",
+    "nonegate",
+    "nonull"
+  ]
 }

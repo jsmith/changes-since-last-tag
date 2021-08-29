@@ -8,6 +8,8 @@ Do you do deployments when you push a new tag? Do you ever have multiple deploym
 
 ## Inputs
 
+> NOTE: In addition to the inputs defined below, you can also pass in any of the minimatch options defined [here](https://github.com/isaacs/minimatch#options). For example, if you want to see the `dot` property, set `dot: true`.
+
 ### glob
 
 **description**: The glob(s) of the files to check for changes (uses [`minimatch`](https://github.com/isaacs/minimatch)). All file changes that don't match at least one of the globs are filtered out. If you want to provide multiple globs, use a `,` between each glob. Defaults to `**`.  
