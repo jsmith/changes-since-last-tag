@@ -27,7 +27,7 @@
   "author": "Jacob Smith <jsmith@hey.com>",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.5.0",
+    "@actions/core": "^1.9.1",
     "@actions/github": "^4.0.0",
     "minimatch": "^3.0.4",
     "neverthrow": "^2.7.1"
