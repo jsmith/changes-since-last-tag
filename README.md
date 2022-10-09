@@ -2,6 +2,8 @@
   <a href="https://github.com/jsmith/changes-since-last-tag/actions"><img alt="typescript-action status" src="https://github.com/jsmith/changes-since-last-tag/workflows/test/badge.svg"></a>
 </p>
 
+> **WARNING: The GitHub list tags API was used to fetch the tags. It was assumed they were in chronological order; however, they are actually in alphabetical order. Using regular `v.X.X.X` versioning still works; however, if they are NOT alphabetical order this will not work as expected. More issue [here](https://stackoverflow.com/questions/19452244/github-api-v3-order-tags-by-creation-date)**
+
 # changes-since-last-tag
 
 Do you do deployments when you push a new tag? Do you ever have multiple deployments in single repository? Do some of those deployments take a long time? Could some of these deployments be sometimes skipped if certain files haven't changed? If you answered yes to all of these questions, this action might be for you.
