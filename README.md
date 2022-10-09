@@ -2,7 +2,7 @@
   <a href="https://github.com/jsmith/changes-since-last-tag/actions"><img alt="typescript-action status" src="https://github.com/jsmith/changes-since-last-tag/workflows/test/badge.svg"></a>
 </p>
 
-> **WARNING: The GitHub list tags API was used to fetch the tags. It was assumed they were in chronological order; however, they are actually in alphabetical order. Using regular `v.X.X.X` versioning still works; however, if they are NOT alphabetical order this will not work as expected. More issue [here](https://stackoverflow.com/questions/19452244/github-api-v3-order-tags-by-creation-date)**
+> **WARNING: The GitHub list tags API was used to fetch the tags. It was assumed they were in chronological order; however, they are actually in alphabetical order. Using regular `v.X.X.X` versioning still works; however, if they are NOT alphabetical order this will not work as expected. More information can be found about this issue [here](https://stackoverflow.com/questions/19452244/github-api-v3-order-tags-by-creation-date).**
 
 # changes-since-last-tag
 
